@@ -1,13 +1,13 @@
+import { useState } from "react";
 import "./App.css";
-import Button from "./components/ui/Button";
 
 function App() {
-  // const [count, setCount] = useState(0);
+  const [count, setCount] = useState(0);
 
   return (
     <div>
-      <h1>Naslov</h1>
-      <Button label="Stisnime!" />
+      <button onClick={() => setCount(count + 1)}>Dodaj</button>
+      <p>{count}</p>
     </div>
   );
 }
