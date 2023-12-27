@@ -1,15 +1,5 @@
-import { useState } from "react";
-import "./App.css";
-
 function App() {
-  const [count, setCount] = useState(0);
-
-  return (
-    <div>
-      <button onClick={() => setCount(count + 1)}>Dodaj</button>
-      <p>{count}</p>
-    </div>
-  );
+  return <div className="bg-stone-900 w-screen min-h-screen"></div>;
 }
 
 export default App;
