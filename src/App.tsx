@@ -6,7 +6,7 @@ function App() {
 
   return (
     <div>
-      <Button label="Stisnime" />
+      <Button label="Stisnime." />
     </div>
   );
 }
