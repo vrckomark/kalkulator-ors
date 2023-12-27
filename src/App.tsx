@@ -1,14 +1,5 @@
-import "./App.css";
-import Button from "./components/ui/Button";
-
 function App() {
-  // const [count, setCount] = useState(0);
-
-  return (
-    <div>
-      <Button label="Stisnime!" />
-    </div>
-  );
+  return <div className="bg-stone-900 w-screen min-h-screen"></div>;
 }
 
 export default App;
