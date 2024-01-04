@@ -4,6 +4,12 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer components {
+  .calc-button {
+    @apply rounded-2xl flex justify-center items-center bg-white bg-opacity-20;
+  }
+}
+
 * {
   color: white;
   font-family: "Inter Tight", sans-serif;

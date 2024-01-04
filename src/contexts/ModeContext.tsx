@@ -12,7 +12,7 @@ export const modeContext = createContext<{
   selectMode: (mode: ModeType) => void;
 }>({
   mode: modes.NUMERIC,
-  selectMode: (mode: ModeType) => {},
+  selectMode: () => {},
 });
 
 interface ModeContextProps {
