@@ -1,16 +1,16 @@
-import History from "../History";
-import Root from "../../assets/icons/root.svg";
+import { TbSquareRoot } from "react-icons/tb";
 import Divide from "../../assets/icons/divide.svg";
 import Multiply from "../../assets/icons/multiply.svg";
 import Exponent from "./components/Exponent";
+import History from "../ui/History";
 
 const CalculatorKeypad = () => {
   return (
     <div className="flex w-full h-2/3 gap-6">
       <History />
-      <div className="h-full w-full grid grid-cols-5 grid-rows-5 gap-8">
+      <div className="h-full w-full grid grid-cols-5 grid-rows-5 gap-2 sm:gap-4 lg:gap-6 xl:gap-8">
         <button className="const-btn">
-          <img src={Root} alt="square-root" draggable={false} />
+          <TbSquareRoot className="text-3xl" />
         </button>
         <button className="const-btn">
           <p className="text-secondary font-medium text-3xl">C</p>
