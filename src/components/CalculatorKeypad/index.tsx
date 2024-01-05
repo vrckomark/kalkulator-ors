@@ -1,4 +1,3 @@
-import React from "react";
 import History from "../History";
 import Root from "../../assets/icons/root.svg";
 import Divide from "../../assets/icons/divide.svg";
