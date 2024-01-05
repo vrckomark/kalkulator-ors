@@ -10,6 +10,7 @@ interface HistoryProps {
 }
 
 const History: React.FC<HistoryProps> = ({ history }) => {
+  console.log(history);
   return (
     <div className="h-full items-center px-8 py-6 bg-white bg-opacity-15 rounded-2xl w-1/3 flex flex-col overflow-hidden">
       <h2 className="mb-4">History</h2>
