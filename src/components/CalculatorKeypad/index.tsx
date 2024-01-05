@@ -7,82 +7,82 @@ import Exponent from "./components/Exponent";
 
 const CalculatorKeypad = () => {
   return (
-    <div className="flex w-full flex-1 gap-6">
+    <div className="flex w-full h-2/3 gap-6">
       <History />
-      <div className="h-full w-full grid grid-cols-5 grid-rows-5 gap-6">
-        <button className="calc-button bg-opacity-10">
-          <img src={Root} alt="square-root" />
+      <div className="h-full w-full grid grid-cols-5 grid-rows-5 gap-8">
+        <button className="const-btn">
+          <img src={Root} alt="square-root" draggable={false} />
         </button>
-        <button className="calc-button bg-opacity-10">
+        <button className="const-btn">
           <p className="text-secondary font-medium text-3xl">C</p>
         </button>
-        <button className="calc-button bg-opacity-10">
+        <button className="const-btn">
           <p className=" font-medium text-3xl">( )</p>
         </button>
-        <button className="calc-button bg-opacity-10">
+        <button className="const-btn">
           <p className=" font-medium text-3xl">%</p>
         </button>
-        <button className="calc-button bg-opacity-70 bg-primary">
-          <img src={Divide} alt="divide" />
+        <button className="op-btn">
+          <img src={Divide} alt="divide" draggable={false} />
         </button>
-        <button className="calc-button bg-opacity-10">
+        <button className="const-btn">
           <Exponent base="x" exponent="y" />
         </button>
-        <button className="calc-button">
+        <button className="val-btn">
           <p className=" font-medium text-3xl">7</p>
         </button>
-        <button className="calc-button">
+        <button className="val-btn">
           <p className=" font-medium text-3xl">8</p>
         </button>
-        <button className="calc-button">
+        <button className="val-btn">
           <p className=" font-medium text-3xl">9</p>
         </button>
-        <button className="calc-button bg-primary bg-opacity-70">
-          <img src={Multiply} alt="multiply" />
+        <button className="op-btn">
+          <img src={Multiply} alt="multiply" draggable={false} />
         </button>
-        <button className="calc-button bg-opacity-10">
+        <button className="const-btn">
           <Exponent base="x" exponent="2" />
         </button>
-        <button className="calc-button">
+        <button className="val-btn">
           <p className=" font-medium text-3xl">4</p>
         </button>
-        <button className="calc-button">
+        <button className="val-btn">
           <p className=" font-medium text-3xl">5</p>
         </button>
-        <button className="calc-button">
+        <button className="val-btn">
           <p className=" font-medium text-3xl">6</p>
         </button>
-        <button className="calc-button bg-primary bg-opacity-70">
+        <button className="op-btn">
           <div className="w-[18px] h-1 rounded-full bg-white"></div>
         </button>
-        <button className="calc-button bg-opacity-10">
+        <button className="const-btn">
           <p className=" font-medium text-3xl">π</p>
         </button>
-        <button className="calc-button">
+        <button className="val-btn">
           <p className=" font-medium text-3xl">1</p>
         </button>
-        <button className="calc-button">
+        <button className="val-btn">
           <p className=" font-medium text-3xl">2</p>
         </button>
-        <button className="calc-button">
+        <button className="val-btn">
           <p className=" font-medium text-3xl">3</p>
         </button>
-        <button className="calc-button bg-primary bg-opacity-70">
+        <button className="op-btn">
           <div className="relative">
             <div className="w-5 h-1 rounded-full bg-white"></div>
             <div className="w-5 h-1 rounded-full bg-white -translate-y-full rotate-90 "></div>
           </div>
         </button>
-        <button className="calc-button bg-opacity-10">
+        <button className="const-btn">
           <p className=" font-medium text-3xl">e</p>
         </button>
-        <button className="calc-button col-span-2">
+        <button className="val-btn col-span-2">
           <p className=" font-medium text-3xl">0</p>
         </button>
-        <button className="calc-button">
+        <button className="val-btn">
           <p className=" font-medium text-3xl">.</p>
         </button>
-        <button className="calc-button bg-primary bg-opacity-100">
+        <button className="op-btn">
           <p className=" font-medium text-3xl">=</p>
         </button>
       </div>
