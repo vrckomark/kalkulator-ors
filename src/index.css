@@ -1,3 +1,39 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;700&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+  .val-btn {
+    @apply rounded-2xl flex justify-center items-center bg-white bg-opacity-20 hover:bg-opacity-30 ease-in-out transition-[background];
+  }
+  .const-btn {
+    @apply rounded-2xl flex justify-center items-center bg-white bg-opacity-10 hover:bg-opacity-15 ease-in-out transition-[background];
+  }
+  .op-btn {
+    @apply rounded-2xl flex justify-center items-center bg-primary bg-opacity-70 hover:bg-opacity-80 ease-in-out transition-[background];
+  }
+}
+
+* {
+  color: white;
+  font-family: "Inter Tight", sans-serif;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #6e6e6e;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #969696;
+}
