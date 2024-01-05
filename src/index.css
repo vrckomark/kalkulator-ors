@@ -16,6 +16,10 @@
   }
 }
 
+body {
+  overflow: hidden;
+}
+
 * {
   color: white;
   font-family: "Inter Tight", sans-serif;
