@@ -1,10 +1,9 @@
 import History from "../ui/History";
-import { numericButtons, systemicButtons } from "./consts/keypadButtons";
 import CalculatorButton from "./components/CalculatorButton";
 import { useCalculatorKeypad } from "./hooks/useCalculatorKeypad";
 
 const CalculatorKeypad = () => {
-  const { mode, buttons, keypadStyle } = useCalculatorKeypad();
+  const { buttons, keypadStyle } = useCalculatorKeypad();
 
   return (
     <div className="flex w-full h-2/3 gap-6">
