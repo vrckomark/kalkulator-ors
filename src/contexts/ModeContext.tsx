@@ -1,4 +1,5 @@
 import React, { createContext, useState } from "react";
+import { hexChars, standaloneSymbols } from "../consts/symbols";
 
 export type ModeType = "numeric" | "systemic";
 
@@ -6,15 +7,6 @@ export const modes = {
   NUMERIC: "numeric" as ModeType,
   SYSTEMIC: "systemic" as ModeType,
 };
-
-export const systems = ["BIN", "OCT", "DEC", "HEX"] as const;
-export const systemValues = {
-  BIN: 2,
-  OCT: 8,
-  DEC: 10,
-  HEX: 16,
-};
-export const hexChars = "0123456789ABCDEF";
 
 export const modeContext = createContext<{
   mode: ModeType;
@@ -54,12 +46,29 @@ const ModeContext: React.FC<ModeContextProps> = ({ children }) => {
     setExpression({ ...expression, [currentMode]: "" });
   };
 
+  const evaluateExpression = () => {
+    //evaluate
+    setExpression({ ...expression, [currentMode]: "15" });
+  };
+
   const addToExpression = (value: string) => {
+    if (value === "CLR") return clearExpression();
+    if (value === "=") return evaluateExpression();
+    if (
+      (standaloneSymbols.includes(
+        expression[currentMode].replaceAll(" ", "").slice(-1)
+      ) &&
+        (standaloneSymbols.includes(value) ||
+          value.includes("pow") ||
+          value.includes("sqrt"))) ||
+      value.includes("(")
+    )
+      return;
     setExpression({
       ...expression,
       [currentMode]:
         expression[currentMode] +
-        `${!hexChars.includes(value) ? " " : ""}${value}`,
+        (!hexChars.includes(value) ? ` ${value} ` : value),
     });
   };
 
