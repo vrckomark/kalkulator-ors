@@ -1,8 +1,21 @@
 import React from "react";
 import { CalculatorButtonType } from "../consts/keypadButtons";
 
-const CalculatorButton: React.FC<CalculatorButtonType> = ({ value, style }) => {
-  return <button className={style}>{value}</button>;
+type CalculatorButtonProps = {
+  onClick: (value: string) => void;
+} & CalculatorButtonType;
+
+const CalculatorButton: React.FC<CalculatorButtonProps> = ({
+  element,
+  style,
+  value,
+  onClick,
+}) => {
+  return (
+    <button onClick={() => onClick(value)} className={style}>
+      {element}
+    </button>
+  );
 };
 
 export default CalculatorButton;
