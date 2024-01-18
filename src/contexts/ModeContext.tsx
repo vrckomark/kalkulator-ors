@@ -2,6 +2,8 @@
 import React, { createContext, useState } from "react";
 import {
   OPERATORS,
+  SYSTEMS,
+  SystemType,
   hexChars,
   standaloneOperators,
   standaloneSymbols,
@@ -43,6 +45,9 @@ const ModeContext: React.FC<ModeContextProps> = ({ children }) => {
   const [currentMode, setCurrentMode] = useState<ModeType>(
     modes.NUMERIC as ModeType
   );
+  const [selectedSystem, setSelectedSystem] = useState<keyof typeof SYSTEMS>(
+    SYSTEMS.DEC
+  );
   const [expression, setExpression] = useState({ systemic: "", numeric: "" });
 
   const selectMode = (mode: ModeType) => {
@@ -58,9 +63,47 @@ const ModeContext: React.FC<ModeContextProps> = ({ children }) => {
     setExpression({ ...expression, [currentMode]: "15" });
   };
 
+  const canAddToExpression = (value: string) => {
+    const currentNode = expression[currentMode].substring(
+      expression[currentMode].lastIndexOf(" ") + 1
+    );
+    return !(
+      ((standaloneSymbols.includes(value) || // 1
+        standaloneOperators.includes(value)) &&
+        !sanitizeExpression(expression[currentMode]).length &&
+        !["-", OPERATORS.NOT].includes(value)) ||
+      (currentNode.includes(".") && value === ".") || // 2
+      (standaloneOperators.includes(
+        // 3
+        sanitizeExpression(expression[currentMode]).slice(-1)
+      ) &&
+        standaloneOperators.includes(value)) || // 4
+      (standaloneSymbols.includes(
+        sanitizeExpression(expression[currentMode]).slice(-1)
+      ) &&
+        (standaloneSymbols.includes(value) ||
+          value.includes("pow") ||
+          value.includes("sqrt"))) ||
+      value.includes("(") ||
+      // 5
+      (sanitizeExpression(expression[currentMode]).slice(-1) ===
+        OPERATORS.NOT &&
+        standaloneOperators.includes(value)) ||
+      (value === OPERATORS.NOT &&
+        hexChars.includes(
+          sanitizeExpression(expression[currentMode]).slice(-1)
+        ) &&
+        sanitizeExpression(expression[currentMode]).length) ||
+      (sanitizeExpression(expression[currentMode]).slice(-1) === "(" &&
+        { numeric: standaloneSymbols, systemic: standaloneOperators }[
+          currentMode
+        ].includes(value) &&
+        value !== "-")
+    );
+  };
+
   const parenthesizeExpression = () => {
     const currentExpression = expression[currentMode];
-    console.log(currentExpression);
     const right = currentExpression.substring(
       currentExpression.lastIndexOf("(") + 1
     );
@@ -81,51 +124,27 @@ const ModeContext: React.FC<ModeContextProps> = ({ children }) => {
           !isLastCharSymbol
             ? { numeric: "*", systemic: OPERATORS.AND }[currentMode]
             : ""
-        } (`,
+        } ( `,
       });
 
     if (!currentExpression.includes("(") || isLastCharSymbol || !right.length)
       return setExpression({
         ...expression,
-        [currentMode]: `${currentExpression}(`,
+        [currentMode]: `${currentExpression}( `,
       });
     return setExpression({
       ...expression,
-      [currentMode]: `${currentExpression})`,
+      [currentMode]: `${currentExpression} )`,
     });
   };
 
   const addToExpression = (value: string) => {
-    const currentNode = expression[currentMode].substring(
-      expression[currentMode].lastIndexOf(" ") + 1
-    );
-    if (
-      (standaloneSymbols.includes(value) ||
-        standaloneOperators.includes(value)) &&
-      !sanitizeExpression(expression[currentMode]).length &&
-      !["-", OPERATORS.NOT].includes(value)
-    )
-      return;
-    if (currentNode.includes(".") && value === ".") return;
     if (value === "CLR") return clearExpression();
     if (value === "=") return evaluateExpression();
     if (value === "()") return parenthesizeExpression();
-    if (
-      standaloneOperators.includes(
-        sanitizeExpression(expression[currentMode]).slice(-1)
-      )
-    )
-      return;
-    if (
-      (standaloneSymbols.includes(
-        sanitizeExpression(expression[currentMode]).slice(-1)
-      ) &&
-        (standaloneSymbols.includes(value) ||
-          value.includes("pow") ||
-          value.includes("sqrt"))) ||
-      value.includes("(")
-    )
-      return;
+    if (Object.values(SYSTEMS).includes(value as SystemType))
+      return setSelectedSystem(value as SystemType);
+    if (!canAddToExpression(value)) return;
 
     setExpression({
       ...expression,

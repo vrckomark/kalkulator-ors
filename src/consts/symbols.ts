@@ -1,4 +1,12 @@
-export const systems = ["BIN", "OCT", "DEC", "HEX"] as const;
+export const SYSTEMS = {
+  BIN: "BIN",
+  OCT: "OCT",
+  DEC: "DEC",
+  HEX: "HEX",
+} as const;
+
+export type SystemType = keyof typeof SYSTEMS;
+
 export const systemValues = {
   BIN: 2,
   OCT: 8,
@@ -17,4 +25,10 @@ export const OPERATORS = {
 };
 
 export const standaloneSymbols = ["%", "π", "e", "/", "*", "-", "+", "="];
-export const standaloneOperators = Object.values(OPERATORS);
+export const standaloneOperators = [
+  OPERATORS.AND,
+  OPERATORS.OR,
+  OPERATORS.NAND,
+  OPERATORS.NOR,
+  OPERATORS.XOR,
+] as const;
