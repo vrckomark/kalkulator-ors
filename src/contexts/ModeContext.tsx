@@ -23,11 +23,13 @@ export const modeContext = createContext<{
     numeric: string;
     systemic: string;
   };
+  selectedSystem: SystemType;
   selectMode: (mode: ModeType) => void;
   clearExpression: () => void;
   addToExpression: (value: string) => void;
 }>({
   mode: modes.NUMERIC,
+  selectedSystem: SYSTEMS.DEC,
   selectMode: () => {},
   expression: {
     numeric: "",
@@ -163,6 +165,7 @@ const ModeContext: React.FC<ModeContextProps> = ({ children }) => {
           expression,
           addToExpression,
           clearExpression,
+          selectedSystem,
         }}
       >
         {children}
