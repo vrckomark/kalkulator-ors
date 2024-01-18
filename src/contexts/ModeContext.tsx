@@ -51,9 +51,46 @@ const ModeContext: React.FC<ModeContextProps> = ({ children }) => {
     setExpression({ ...expression, [currentMode]: "15" });
   };
 
+  const parenthesizeExpression = () => {
+    const currentExpression = expression[currentMode];
+    const right = currentExpression.substring(
+      currentExpression.lastIndexOf("(") + 1
+    );
+    const isLastCharSymbol = standaloneSymbols.some(
+      (symbol) => right.replaceAll(" ", "").slice(-1) === symbol
+    );
+    if (
+      currentExpression.split("(").length - 1 ===
+      currentExpression.split(")").length - 1
+    )
+      return setExpression({
+        ...expression,
+        [currentMode]: `${currentExpression} ${!isLastCharSymbol ? "*" : ""} (`,
+      });
+    if (!currentExpression.includes("(") || isLastCharSymbol || !right.length)
+      return setExpression({
+        ...expression,
+        [currentMode]: `${currentExpression}(`,
+      });
+    // if (!isLastCharSymbol)
+    //   return setExpression({
+    //     ...expression,
+    //     [currentMode]: `${currentExpression} * (`,
+    //   });
+    return setExpression({
+      ...expression,
+      [currentMode]: `${currentExpression})`,
+    });
+  };
+
   const addToExpression = (value: string) => {
+    const currentNode = expression[currentMode].substring(
+      expression[currentMode].lastIndexOf(" ") + 1
+    );
+    if (currentNode.includes(".") && value === ".") return;
     if (value === "CLR") return clearExpression();
     if (value === "=") return evaluateExpression();
+    if (value === "()") return parenthesizeExpression();
     if (
       (standaloneSymbols.includes(
         expression[currentMode].replaceAll(" ", "").slice(-1)
@@ -64,11 +101,12 @@ const ModeContext: React.FC<ModeContextProps> = ({ children }) => {
       value.includes("(")
     )
       return;
+
     setExpression({
       ...expression,
       [currentMode]:
         expression[currentMode] +
-        (!hexChars.includes(value) ? ` ${value} ` : value),
+        (hexChars.includes(value) || value === "." ? value : ` ${value} `),
     });
   };
 

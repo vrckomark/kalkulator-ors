@@ -157,18 +157,18 @@ export const systemicButtons = [
   },
   {
     style: "op-btn",
-    element: <p className=" font-medium text-3xl">xor</p>,
-    value: "xor",
+    element: <p className=" font-medium text-3xl">⊻</p>,
+    value: "⊻",
   },
   {
     style: "op-btn",
-    element: <p className=" font-medium text-3xl">nor</p>,
-    value: "nor",
+    element: <p className=" font-medium text-3xl">↓</p>,
+    value: "↓",
   },
   {
     style: "op-btn",
-    element: <p className=" font-medium text-3xl">nand</p>,
-    value: "nand",
+    element: <p className=" font-medium text-3xl">↑</p>,
+    value: "↑",
   },
   {
     style: "const-btn",
@@ -197,8 +197,8 @@ export const systemicButtons = [
   },
   {
     style: "op-btn",
-    element: <p className=" font-medium text-3xl">not</p>,
-    value: "not",
+    element: <p className=" font-medium text-3xl">¬</p>,
+    value: "¬",
   },
   {
     style: "const-btn",
@@ -227,8 +227,8 @@ export const systemicButtons = [
   },
   {
     style: "op-btn",
-    element: <p className=" font-medium text-3xl">and</p>,
-    value: "and",
+    element: <p className=" font-medium text-3xl">∧</p>,
+    value: "∧",
   },
   {
     style: "const-btn",
@@ -257,8 +257,8 @@ export const systemicButtons = [
   },
   {
     style: "op-btn",
-    element: <p className=" font-medium text-3xl">or</p>,
-    value: "or",
+    element: <p className=" font-medium text-3xl">∨</p>,
+    value: "∨",
   },
   {
     style: "const-btn",

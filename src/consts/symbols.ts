@@ -7,15 +7,4 @@ export const systemValues = {
 };
 export const hexChars = "0123456789ABCDEF";
 
-export const standaloneSymbols = [
-  "(",
-  ")",
-  "%",
-  "π",
-  "e",
-  "/",
-  "*",
-  "-",
-  "+",
-  "=",
-];
+export const standaloneSymbols = ["%", "π", "e", "/", "*", "-", "+", "="];
