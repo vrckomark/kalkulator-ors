@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useState } from "react";
 import {
   OPERATORS,
@@ -12,7 +13,7 @@ export type ModeType = "numeric" | "systemic";
 export const modes = {
   NUMERIC: "numeric" as ModeType,
   SYSTEMIC: "systemic" as ModeType,
-};
+} as const;
 
 export const modeContext = createContext<{
   mode: ModeType;

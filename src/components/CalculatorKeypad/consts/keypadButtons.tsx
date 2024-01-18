@@ -1,5 +1,4 @@
 import { TbSquareRoot } from "react-icons/tb";
-import Divide from "../../../assets/icons/divide.svg";
 import Multiply from "../../../assets/icons/multiply.svg";
 import Exponent from "../components/Exponent";
 import { OPERATORS } from "../../../consts/symbols";
