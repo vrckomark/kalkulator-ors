@@ -7,4 +7,14 @@ export const systemValues = {
 };
 export const hexChars = "0123456789ABCDEF";
 
+export const OPERATORS = {
+  AND: "∧",
+  OR: "∨",
+  NOT: "¬",
+  NAND: "↑",
+  NOR: "↓",
+  XOR: "⊻",
+};
+
 export const standaloneSymbols = ["%", "π", "e", "/", "*", "-", "+", "="];
+export const standaloneOperators = Object.values(OPERATORS);

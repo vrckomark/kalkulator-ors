@@ -1,5 +1,11 @@
 import React, { createContext, useState } from "react";
-import { hexChars, standaloneSymbols } from "../consts/symbols";
+import {
+  OPERATORS,
+  hexChars,
+  standaloneOperators,
+  standaloneSymbols,
+} from "../consts/symbols";
+import { sanitizeExpression } from "../utils/sanitizeExpression";
 
 export type ModeType = "numeric" | "systemic";
 
@@ -53,30 +59,35 @@ const ModeContext: React.FC<ModeContextProps> = ({ children }) => {
 
   const parenthesizeExpression = () => {
     const currentExpression = expression[currentMode];
+    console.log(currentExpression);
     const right = currentExpression.substring(
       currentExpression.lastIndexOf("(") + 1
     );
-    const isLastCharSymbol = standaloneSymbols.some(
-      (symbol) => right.replaceAll(" ", "").slice(-1) === symbol
+    const isLastCharSymbol = {
+      numeric: standaloneSymbols,
+      systemic: standaloneOperators,
+    }[currentMode].some(
+      (symbol) => sanitizeExpression(right).slice(-1) === symbol
     );
     if (
       currentExpression.split("(").length - 1 ===
-      currentExpression.split(")").length - 1
+        currentExpression.split(")").length - 1 &&
+      sanitizeExpression(currentExpression).length
     )
       return setExpression({
         ...expression,
-        [currentMode]: `${currentExpression} ${!isLastCharSymbol ? "*" : ""} (`,
+        [currentMode]: `${currentExpression} ${
+          !isLastCharSymbol
+            ? { numeric: "*", systemic: OPERATORS.AND }[currentMode]
+            : ""
+        } (`,
       });
+
     if (!currentExpression.includes("(") || isLastCharSymbol || !right.length)
       return setExpression({
         ...expression,
         [currentMode]: `${currentExpression}(`,
       });
-    // if (!isLastCharSymbol)
-    //   return setExpression({
-    //     ...expression,
-    //     [currentMode]: `${currentExpression} * (`,
-    //   });
     return setExpression({
       ...expression,
       [currentMode]: `${currentExpression})`,
@@ -87,13 +98,26 @@ const ModeContext: React.FC<ModeContextProps> = ({ children }) => {
     const currentNode = expression[currentMode].substring(
       expression[currentMode].lastIndexOf(" ") + 1
     );
+    if (
+      (standaloneSymbols.includes(value) ||
+        standaloneOperators.includes(value)) &&
+      !sanitizeExpression(expression[currentMode]).length &&
+      !["-", OPERATORS.NOT].includes(value)
+    )
+      return;
     if (currentNode.includes(".") && value === ".") return;
     if (value === "CLR") return clearExpression();
     if (value === "=") return evaluateExpression();
     if (value === "()") return parenthesizeExpression();
     if (
+      standaloneOperators.includes(
+        sanitizeExpression(expression[currentMode]).slice(-1)
+      )
+    )
+      return;
+    if (
       (standaloneSymbols.includes(
-        expression[currentMode].replaceAll(" ", "").slice(-1)
+        sanitizeExpression(expression[currentMode]).slice(-1)
       ) &&
         (standaloneSymbols.includes(value) ||
           value.includes("pow") ||

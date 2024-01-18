@@ -2,6 +2,7 @@ import { TbSquareRoot } from "react-icons/tb";
 import Divide from "../../../assets/icons/divide.svg";
 import Multiply from "../../../assets/icons/multiply.svg";
 import Exponent from "../components/Exponent";
+import { OPERATORS } from "../../../consts/symbols";
 
 export type ButtonStyle = "const-btn" | "val-btn" | "op-btn";
 export type ButtonValue = JSX.Element | string;
@@ -157,18 +158,18 @@ export const systemicButtons = [
   },
   {
     style: "op-btn",
-    element: <p className=" font-medium text-3xl">⊻</p>,
-    value: "⊻",
+    element: <p className=" font-medium text-3xl">{OPERATORS.XOR}</p>,
+    value: OPERATORS.XOR,
   },
   {
     style: "op-btn",
-    element: <p className=" font-medium text-3xl">↓</p>,
-    value: "↓",
+    element: <p className=" font-medium text-3xl">{OPERATORS.NOR}</p>,
+    value: OPERATORS.NOR,
   },
   {
     style: "op-btn",
-    element: <p className=" font-medium text-3xl">↑</p>,
-    value: "↑",
+    element: <p className=" font-medium text-3xl">{OPERATORS.NAND}</p>,
+    value: OPERATORS.NAND,
   },
   {
     style: "const-btn",
@@ -197,8 +198,8 @@ export const systemicButtons = [
   },
   {
     style: "op-btn",
-    element: <p className=" font-medium text-3xl">¬</p>,
-    value: "¬",
+    element: <p className=" font-medium text-3xl">{OPERATORS.NOT}</p>,
+    value: OPERATORS.NOT,
   },
   {
     style: "const-btn",
@@ -227,8 +228,8 @@ export const systemicButtons = [
   },
   {
     style: "op-btn",
-    element: <p className=" font-medium text-3xl">∧</p>,
-    value: "∧",
+    element: <p className=" font-medium text-3xl">{OPERATORS.AND}</p>,
+    value: OPERATORS.AND,
   },
   {
     style: "const-btn",
@@ -257,8 +258,8 @@ export const systemicButtons = [
   },
   {
     style: "op-btn",
-    element: <p className=" font-medium text-3xl">∨</p>,
-    value: "∨",
+    element: <p className=" font-medium text-3xl">{OPERATORS.OR}</p>,
+    value: OPERATORS.OR,
   },
   {
     style: "const-btn",
