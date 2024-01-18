@@ -11,7 +11,11 @@ export const useCalculatorKeypad = () => {
   const [buttons, setButtons] =
     useState<CalculatorButtonType[]>(numericButtons);
 
-  const { mode } = useContext(modeContext);
+  const { mode, addToExpression } = useContext(modeContext);
+
+  const onButtonClick = (value: string) => {
+    addToExpression(value);
+  };
 
   useEffect(() => {
     const colStyle = {
@@ -35,5 +39,6 @@ export const useCalculatorKeypad = () => {
     mode,
     buttons,
     keypadStyle,
+    onButtonClick,
   };
 };
