@@ -5,13 +5,15 @@ import {
   numericButtons,
   systemicButtons,
 } from "../consts/keypadButtons";
+import { useResultScreen } from "../../ResultScreen/hooks/useResultScreen";
 
 export const useCalculatorKeypad = () => {
   const [keypadStyle, setKeypadStyle] = useState("grid-cols-5");
   const [buttons, setButtons] =
     useState<CalculatorButtonType[]>(numericButtons);
 
-  const { mode, addToExpression } = useContext(modeContext);
+  const { mode } = useContext(modeContext);
+  const { addToExpression } = useResultScreen();
 
   const onButtonClick = (value: string) => {
     addToExpression(value);

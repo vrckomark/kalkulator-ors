@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import React, { createContext, useState } from "react";
+import React, { createContext, useEffect, useRef, useState } from "react";
 import {
   OPERATORS,
   SYSTEMS,
@@ -25,8 +25,8 @@ export const modeContext = createContext<{
   };
   selectedSystem: SystemType;
   selectMode: (mode: ModeType) => void;
-  clearExpression: () => void;
-  addToExpression: (value: string) => void;
+  setCurrentExpression: (expression: string) => void;
+  setCurrentSystem: (system: keyof typeof SYSTEMS) => void;
 }>({
   mode: modes.NUMERIC,
   selectedSystem: SYSTEMS.DEC,
@@ -35,8 +35,8 @@ export const modeContext = createContext<{
     numeric: "",
     systemic: "",
   },
-  clearExpression: () => {},
-  addToExpression: () => {},
+  setCurrentExpression: () => {},
+  setCurrentSystem: () => {},
 });
 
 interface ModeContextProps {
@@ -56,104 +56,15 @@ const ModeContext: React.FC<ModeContextProps> = ({ children }) => {
     setCurrentMode(mode);
   };
 
-  const clearExpression = () => {
-    setExpression({ ...expression, [currentMode]: "" });
+  const setCurrentExpression = (expression: string) => {
+    setExpression((prev) => ({
+      ...prev,
+      [currentMode]: expression,
+    }));
   };
 
-  const evaluateExpression = () => {
-    //evaluate
-    setExpression({ ...expression, [currentMode]: "15" });
-  };
-
-  const canAddToExpression = (value: string) => {
-    const currentNode = expression[currentMode].substring(
-      expression[currentMode].lastIndexOf(" ") + 1
-    );
-    return !(
-      ((standaloneSymbols.includes(value) || // 1
-        standaloneOperators.includes(value)) &&
-        !sanitizeExpression(expression[currentMode]).length &&
-        !["-", OPERATORS.NOT].includes(value)) ||
-      (currentNode.includes(".") && value === ".") || // 2
-      (standaloneOperators.includes(
-        // 3
-        sanitizeExpression(expression[currentMode]).slice(-1)
-      ) &&
-        standaloneOperators.includes(value)) || // 4
-      (standaloneSymbols.includes(
-        sanitizeExpression(expression[currentMode]).slice(-1)
-      ) &&
-        (standaloneSymbols.includes(value) ||
-          value.includes("pow") ||
-          value.includes("sqrt"))) ||
-      value.includes("(") ||
-      // 5
-      (sanitizeExpression(expression[currentMode]).slice(-1) ===
-        OPERATORS.NOT &&
-        standaloneOperators.includes(value)) ||
-      (value === OPERATORS.NOT &&
-        hexChars.includes(
-          sanitizeExpression(expression[currentMode]).slice(-1)
-        ) &&
-        sanitizeExpression(expression[currentMode]).length) ||
-      (sanitizeExpression(expression[currentMode]).slice(-1) === "(" &&
-        { numeric: standaloneSymbols, systemic: standaloneOperators }[
-          currentMode
-        ].includes(value) &&
-        value !== "-")
-    );
-  };
-
-  const parenthesizeExpression = () => {
-    const currentExpression = expression[currentMode];
-    const right = currentExpression.substring(
-      currentExpression.lastIndexOf("(") + 1
-    );
-    const isLastCharSymbol = {
-      numeric: standaloneSymbols,
-      systemic: standaloneOperators,
-    }[currentMode].some(
-      (symbol) => sanitizeExpression(right).slice(-1) === symbol
-    );
-    if (
-      currentExpression.split("(").length - 1 ===
-        currentExpression.split(")").length - 1 &&
-      sanitizeExpression(currentExpression).length
-    )
-      return setExpression({
-        ...expression,
-        [currentMode]: `${currentExpression} ${
-          !isLastCharSymbol
-            ? { numeric: "*", systemic: OPERATORS.AND }[currentMode]
-            : ""
-        } ( `,
-      });
-
-    if (!currentExpression.includes("(") || isLastCharSymbol || !right.length)
-      return setExpression({
-        ...expression,
-        [currentMode]: `${currentExpression}( `,
-      });
-    return setExpression({
-      ...expression,
-      [currentMode]: `${currentExpression} )`,
-    });
-  };
-
-  const addToExpression = (value: string) => {
-    if (value === "CLR") return clearExpression();
-    if (value === "=") return evaluateExpression();
-    if (value === "()") return parenthesizeExpression();
-    if (Object.values(SYSTEMS).includes(value as SystemType))
-      return setSelectedSystem(value as SystemType);
-    if (!canAddToExpression(value)) return;
-
-    setExpression({
-      ...expression,
-      [currentMode]:
-        expression[currentMode] +
-        (hexChars.includes(value) || value === "." ? value : ` ${value} `),
-    });
+  const setCurrentSystem = (system: keyof typeof SYSTEMS) => {
+    setSelectedSystem(system);
   };
 
   return (
@@ -161,11 +72,11 @@ const ModeContext: React.FC<ModeContextProps> = ({ children }) => {
       <modeContext.Provider
         value={{
           mode: currentMode,
+          setCurrentExpression,
           selectMode,
           expression,
-          addToExpression,
-          clearExpression,
           selectedSystem,
+          setCurrentSystem,
         }}
       >
         {children}

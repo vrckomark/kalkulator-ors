@@ -14,8 +14,8 @@ export type CalculatorButtonType = {
 export const numericButtons = [
   {
     style: "const-btn",
-    element: <TbSquareRoot className="text-3xl" />,
-    value: "sqrt()",
+    element: <p className=" font-medium text-3xl">DEL</p>,
+    value: "DEL",
   },
   {
     style: "const-btn",
@@ -39,8 +39,8 @@ export const numericButtons = [
   },
   {
     style: "const-btn",
-    element: <Exponent base="x" exponent="y" />,
-    value: "pow(x,y)",
+    element: <TbSquareRoot className="text-3xl" />,
+    value: "sqrt()",
   },
   {
     style: "val-btn",
@@ -64,8 +64,8 @@ export const numericButtons = [
   },
   {
     style: "const-btn",
-    element: <Exponent base="x" exponent="2" />,
-    value: "pow(x,2)",
+    element: <Exponent base="x" exponent="y" />,
+    value: "pow(x,y)",
   },
   {
     style: "val-btn",

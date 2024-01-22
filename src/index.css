@@ -20,6 +20,10 @@ body {
   overflow: hidden;
 }
 
+input {
+  caret-color: #d12e6a;
+}
+
 * {
   color: white;
   font-family: "Inter Tight", sans-serif;
