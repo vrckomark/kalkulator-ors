@@ -258,6 +258,7 @@ export const useResultScreen = () => {
         .replaceAll(PI.symbol, Math.PI.toString())
         .replaceAll("e", Math.E.toString())
     ).toLocaleString("default", { maximumFractionDigits: 3 });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentExpression]);
 
   return {
