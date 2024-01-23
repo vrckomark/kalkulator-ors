@@ -1,6 +1,6 @@
-import { useContext, useRef, useState } from "react";
+import { useContext } from "react";
 import { modeContext } from "../../contexts/ModeContext";
-import { SYSTEMS, systemValues } from "../../consts/symbols";
+import { systemValues } from "../../consts/symbols";
 import { useResultScreen } from "./hooks/useResultScreen";
 
 const ResultScreen = () => {
@@ -26,7 +26,7 @@ const ResultScreen = () => {
         className="text-[44px] font-medium bg-transparent text-right outline-none w-full"
       ></input> */}
       <p className="text-3xl opacity-50 font-medium h-9">
-        {/* {isNaN(parseFloat(evaluatedExpression)) ? "" : evaluatedExpression} */}
+        {isNaN(parseFloat(evaluatedExpression)) ? "" : evaluatedExpression}
       </p>
       <p className="absolute right-0 bottom-0 text-2xl font-medium p-4 tracking-wider">
         {mode === "systemic" && `${system} (${systemValues[system]}`}

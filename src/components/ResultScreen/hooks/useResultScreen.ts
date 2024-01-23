@@ -15,7 +15,7 @@ export const useResultScreen = () => {
   const {
     expression,
     mode: currentMode,
-    selectedSystem: system,
+    // selectedSystem: system,
     setCurrentSystem,
     setCurrentExpression: setExpression,
   } = useContext(modeContext);
@@ -137,17 +137,14 @@ export const useResultScreen = () => {
   };
 
   const evaluateExpression = (expression: string): number => {
-    // Helper function to perform exponentiation
     const power = (base: number, exponent: number) => {
       return Math.pow(base, exponent);
     };
 
-    // Helper function to evaluate expressions inside square roots and exponents
     const evaluateNestedExpression = (subExpression: string): number => {
       return evaluateExpression(subExpression);
     };
 
-    // Replace square root and exponentiation with their respective functions
     expression = expression.replace(/sqrt\(([^)]+)\)/g, (_, inside) =>
       Math.sqrt(evaluateNestedExpression(inside)).toString()
     );
@@ -160,14 +157,12 @@ export const useResultScreen = () => {
       (_, base, exponent) => power(Number(base), Number(exponent)).toString()
     );
 
-    // Evaluate the expression within parentheses
     while (expression.includes("(")) {
       expression = expression.replace(/\(([^()]+)\)/g, (_, subExpression) =>
         evaluateExpression(subExpression).toString()
       );
     }
 
-    // Evaluate multiplication and division
     expression = expression.replace(
       /(\d+(?:\.\d+)?)\s*\*\s*(\d+(?:\.\d+)?)/g,
       (_, factor1, factor2) =>
@@ -181,7 +176,6 @@ export const useResultScreen = () => {
         ).toString()
     );
 
-    // Evaluate addition and subtraction
     expression = expression.replace(
       /(\d+(?:\.\d+)?)\s*\+\s*(\d+(?:\.\d+)?)/g,
       (_, addend1, addend2) =>
@@ -255,14 +249,16 @@ export const useResultScreen = () => {
     );
   };
 
-  const evaluatedExpression = 0;
-  // const evaluatedExpression = useMemo(() => {
-  //   return evaluateExpression(
-  //     sanitizeExpression(currentExpression)
-  //       .replaceAll(PI.symbol, Math.PI.toString())
-  //       .replaceAll("e", Math.E.toString())
-  //   ).toLocaleString("default", { maximumFractionDigits: 3 });
-  // }, [currentExpression]);
+  const evaluatedExpression = useMemo(() => {
+    const openCount = (currentExpression.match(/\(/g) || []).length;
+    const closeCount = (currentExpression.match(/\)/g) || []).length;
+    if (openCount > closeCount) return "";
+    return evaluateExpression(
+      sanitizeExpression(balanceParentheses(currentExpression))
+        .replaceAll(PI.symbol, Math.PI.toString())
+        .replaceAll("e", Math.E.toString())
+    ).toLocaleString("default", { maximumFractionDigits: 3 });
+  }, [currentExpression]);
 
   return {
     inputRef,
