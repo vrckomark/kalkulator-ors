@@ -131,8 +131,8 @@ export const useResultScreen = () => {
 
   const addSquareRootToExpression = () => {
     const leftChar = sanitizeExpression(currentExpression).slice(-1);
-    if (numbersChars.includes(leftChar) && leftChar)
-      return setExpression(currentExpression + " * " + "sqrt( ");
+    if (numbersChars.includes(leftChar) && !!leftChar)
+      return setExpression(`${currentExpression} * sqrt( `);
     return setExpression(currentExpression + " " + "sqrt( ");
   };
 
@@ -228,7 +228,7 @@ export const useResultScreen = () => {
     if (value === "=") return evaluate();
     if (value === "CLR") return clearExpression();
     if (value === "DEL") return backspaceExpression();
-    if (value.includes("sqrt")) addSquareRootToExpression();
+    if (value.includes("sqrt")) return addSquareRootToExpression();
     if (value === PI.slug) return addConstToExpression(PI.symbol);
     if (value === "e") return addConstToExpression("e");
     if (
