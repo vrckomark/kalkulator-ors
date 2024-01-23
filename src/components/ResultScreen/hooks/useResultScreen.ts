@@ -189,6 +189,14 @@ export const useResultScreen = () => {
         ).toString()
     );
 
+    expression = expression.replace(
+      /(\d+(?:\.\d+)?)\s*%\s*(\d+(?:\.\d+)?)/g,
+      (_, dividend, divisor) =>
+        (
+          Number(dividend) % Number(evaluateNestedExpression(divisor))
+        ).toString()
+    );
+
     return Number(expression);
   };
 
