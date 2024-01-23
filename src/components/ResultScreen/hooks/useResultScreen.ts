@@ -137,6 +137,8 @@ export const useResultScreen = () => {
   };
 
   const evaluateExpression = (expression: string): number => {
+    if (/(\*|\/|\+|-|%)$/.test(expression))
+      return Number(expression.slice(0, -1));
     const power = (base: number, exponent: number) => {
       return Math.pow(base, exponent);
     };
@@ -148,14 +150,13 @@ export const useResultScreen = () => {
     expression = expression.replace(/sqrt\(([^)]+)\)/g, (_, inside) =>
       Math.sqrt(evaluateNestedExpression(inside)).toString()
     );
-    expression = expression.replace(
-      /(\d+(?:\.\d+)?)\s*\^\s*\(([^)]+)\)/g,
-      (_, base, exponent) => power(Number(base), Number(exponent)).toString()
-    );
-    expression = expression.replace(
-      /(\d+(?:\.\d+)?)\s*\^\s*(\d+(?:\.\d+)?)/g,
-      (_, base, exponent) => power(Number(base), Number(exponent)).toString()
-    );
+
+    while (expression.includes("^")) {
+      expression = expression.replace(
+        /(\d+(?:\.\d+)?)\s*\^\s*(\d+(?:\.\d+)?)/g,
+        (_, base, exponent) => power(Number(base), Number(exponent)).toString()
+      );
+    }
 
     while (expression.includes("(")) {
       expression = expression.replace(/\(([^()]+)\)/g, (_, subExpression) =>
@@ -163,39 +164,55 @@ export const useResultScreen = () => {
       );
     }
 
-    expression = expression.replace(
-      /(\d+(?:\.\d+)?)\s*\*\s*(\d+(?:\.\d+)?)/g,
-      (_, factor1, factor2) =>
-        (Number(factor1) * Number(evaluateNestedExpression(factor2))).toString()
-    );
-    expression = expression.replace(
-      /(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)/g,
-      (_, numerator, denominator) =>
-        (
-          Number(numerator) / Number(evaluateNestedExpression(denominator))
-        ).toString()
-    );
+    while (expression.includes("*")) {
+      expression = expression.replace(
+        /(\d+(?:\.\d+)?)\s*\*\s*(\d+(?:\.\d+)?)/g,
+        (_, factor1, factor2) =>
+          (
+            Number(factor1) * Number(evaluateNestedExpression(factor2))
+          ).toString()
+      );
+    }
 
-    expression = expression.replace(
-      /(\d+(?:\.\d+)?)\s*\+\s*(\d+(?:\.\d+)?)/g,
-      (_, addend1, addend2) =>
-        (Number(addend1) + Number(evaluateNestedExpression(addend2))).toString()
-    );
-    expression = expression.replace(
-      /(\d+(?:\.\d+)?)\s*-\s*(\d+(?:\.\d+)?)/g,
-      (_, minuend, subtrahend) =>
-        (
-          Number(minuend) - Number(evaluateNestedExpression(subtrahend))
-        ).toString()
-    );
+    while (expression.includes("/")) {
+      expression = expression.replace(
+        /(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)/g,
+        (_, numerator, denominator) =>
+          (
+            Number(numerator) / Number(evaluateNestedExpression(denominator))
+          ).toString()
+      );
+    }
 
-    expression = expression.replace(
-      /(\d+(?:\.\d+)?)\s*%\s*(\d+(?:\.\d+)?)/g,
-      (_, dividend, divisor) =>
-        (
-          Number(dividend) % Number(evaluateNestedExpression(divisor))
-        ).toString()
-    );
+    while (expression.includes("+")) {
+      expression = expression.replace(
+        /(\d+(?:\.\d+)?)\s*\+\s*(\d+(?:\.\d+)?)/g,
+        (_, addend1, addend2) =>
+          (
+            Number(addend1) + Number(evaluateNestedExpression(addend2))
+          ).toString()
+      );
+    }
+
+    while (expression.includes("-")) {
+      expression = expression.replace(
+        /(\d+(?:\.\d+)?)\s*-\s*(\d+(?:\.\d+)?)/g,
+        (_, minuend, subtrahend) =>
+          (
+            Number(minuend) - Number(evaluateNestedExpression(subtrahend))
+          ).toString()
+      );
+    }
+
+    while (expression.includes("%")) {
+      expression = expression.replace(
+        /(\d+(?:\.\d+)?)\s*%\s*(\d+(?:\.\d+)?)/g,
+        (_, dividend, divisor) =>
+          (
+            Number(dividend) % Number(evaluateNestedExpression(divisor))
+          ).toString()
+      );
+    }
 
     return Number(expression);
   };

@@ -7,7 +7,7 @@ import { scientificButtons } from "./consts/keypadButtons";
 
 const CalculatorKeypad = () => {
   const { buttons, keypadStyle, onButtonClick } = useCalculatorKeypad();
-  const { selectedSystem: system } = useContext(modeContext);
+  const { selectedSystem: system, mode } = useContext(modeContext);
 
   return (
     <div className="flex w-full h-2/3 gap-6">
@@ -19,7 +19,8 @@ const CalculatorKeypad = () => {
           <CalculatorButton
             disabled={
               button.style === "val-btn" &&
-              !scientificButtons[system].includes(button.value)
+              !scientificButtons[system].includes(button.value) &&
+              mode === "systemic"
             }
             key={index}
             {...button}
