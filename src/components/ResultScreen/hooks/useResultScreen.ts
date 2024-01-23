@@ -1,4 +1,4 @@
-import { useContext, useRef } from "react";
+import { useContext, useMemo, useRef } from "react";
 import { modeContext } from "../../../contexts/ModeContext";
 import {
   OPERATORS,
@@ -25,11 +25,6 @@ export const useResultScreen = () => {
 
   const clearExpression = () => {
     setExpression("");
-  };
-
-  const evaluateExpression = () => {
-    //evaluate
-    setExpression("15");
   };
 
   const onKeyboardInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -129,7 +124,8 @@ export const useResultScreen = () => {
 
   const addExponent = () => {
     const leftChar = sanitizeExpression(currentExpression).slice(-1);
-    if (!numbersChars.includes(leftChar) && leftChar !== ")") return;
+    if ((!numbersChars.includes(leftChar) && leftChar !== ")") || !leftChar)
+      return;
     return setExpression(currentExpression + "^( ");
   };
 
@@ -140,7 +136,94 @@ export const useResultScreen = () => {
     return setExpression(currentExpression + " " + "sqrt( ");
   };
 
+  const evaluateExpression = (expression: string): number => {
+    // Helper function to perform exponentiation
+    const power = (base: number, exponent: number) => {
+      return Math.pow(base, exponent);
+    };
+
+    // Helper function to evaluate expressions inside square roots and exponents
+    const evaluateNestedExpression = (subExpression: string): number => {
+      return evaluateExpression(subExpression);
+    };
+
+    // Replace square root and exponentiation with their respective functions
+    expression = expression.replace(/sqrt\(([^)]+)\)/g, (_, inside) =>
+      Math.sqrt(evaluateNestedExpression(inside)).toString()
+    );
+    expression = expression.replace(
+      /(\d+(?:\.\d+)?)\s*\^\s*\(([^)]+)\)/g,
+      (_, base, exponent) => power(Number(base), Number(exponent)).toString()
+    );
+    expression = expression.replace(
+      /(\d+(?:\.\d+)?)\s*\^\s*(\d+(?:\.\d+)?)/g,
+      (_, base, exponent) => power(Number(base), Number(exponent)).toString()
+    );
+
+    // Evaluate the expression within parentheses
+    while (expression.includes("(")) {
+      expression = expression.replace(/\(([^()]+)\)/g, (_, subExpression) =>
+        evaluateExpression(subExpression).toString()
+      );
+    }
+
+    // Evaluate multiplication and division
+    expression = expression.replace(
+      /(\d+(?:\.\d+)?)\s*\*\s*(\d+(?:\.\d+)?)/g,
+      (_, factor1, factor2) =>
+        (Number(factor1) * Number(evaluateNestedExpression(factor2))).toString()
+    );
+    expression = expression.replace(
+      /(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)/g,
+      (_, numerator, denominator) =>
+        (
+          Number(numerator) / Number(evaluateNestedExpression(denominator))
+        ).toString()
+    );
+
+    // Evaluate addition and subtraction
+    expression = expression.replace(
+      /(\d+(?:\.\d+)?)\s*\+\s*(\d+(?:\.\d+)?)/g,
+      (_, addend1, addend2) =>
+        (Number(addend1) + Number(evaluateNestedExpression(addend2))).toString()
+    );
+    expression = expression.replace(
+      /(\d+(?:\.\d+)?)\s*-\s*(\d+(?:\.\d+)?)/g,
+      (_, minuend, subtrahend) =>
+        (
+          Number(minuend) - Number(evaluateNestedExpression(subtrahend))
+        ).toString()
+    );
+
+    return Number(expression);
+  };
+
+  const balanceParentheses = (expression: string) => {
+    const openCount = (expression.match(/\(/g) || []).length;
+    const closeCount = (expression.match(/\)/g) || []).length;
+
+    const missingClosingParentheses = Math.max(0, openCount - closeCount);
+
+    const closingParentheses = ")".repeat(missingClosingParentheses);
+
+    return expression + closingParentheses;
+  };
+
+  const evaluate = () => {
+    const balancedExpression = sanitizeExpression(
+      balanceParentheses(currentExpression)
+    )
+      .replaceAll(PI.symbol, Math.PI.toString())
+      .replaceAll("e", Math.E.toString());
+    return setExpression(
+      evaluateExpression(balancedExpression).toLocaleString("default", {
+        maximumFractionDigits: 3,
+      })
+    );
+  };
+
   const addToExpression = (value: string) => {
+    if (value === "=") return evaluate();
     if (value === "CLR") return clearExpression();
     if (value === "DEL") return backspaceExpression();
     if (value.includes("sqrt")) addSquareRootToExpression();
@@ -151,7 +234,6 @@ export const useResultScreen = () => {
     if (value === PI.slug) return addConstToExpression(PI.symbol);
     if (value === "e") return addConstToExpression("e");
     if (value.includes("pow")) return addExponent();
-    if (value === "=") return evaluateExpression();
     if (value === "()") return parenthesizeExpression();
     if (Object.values(SYSTEMS).includes(value as SystemType))
       return setCurrentSystem(value as SystemType);
@@ -173,9 +255,19 @@ export const useResultScreen = () => {
     );
   };
 
+  const evaluatedExpression = 0;
+  // const evaluatedExpression = useMemo(() => {
+  //   return evaluateExpression(
+  //     sanitizeExpression(currentExpression)
+  //       .replaceAll(PI.symbol, Math.PI.toString())
+  //       .replaceAll("e", Math.E.toString())
+  //   ).toLocaleString("default", { maximumFractionDigits: 3 });
+  // }, [currentExpression]);
+
   return {
     inputRef,
     addToExpression,
     onKeyboardInput,
+    evaluatedExpression,
   };
 };
