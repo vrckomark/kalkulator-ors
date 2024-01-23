@@ -2,9 +2,10 @@ import { useContext, useRef } from "react";
 import { modeContext } from "../../../contexts/ModeContext";
 import {
   OPERATORS,
+  PI,
   SYSTEMS,
   SystemType,
-  hexChars,
+  numbersChars,
   standaloneOperators,
   standaloneSymbols,
 } from "../../../consts/symbols";
@@ -20,6 +21,8 @@ export const useResultScreen = () => {
   } = useContext(modeContext);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const currentExpression = expression[currentMode];
+
   const clearExpression = () => {
     setExpression("");
   };
@@ -34,37 +37,36 @@ export const useResultScreen = () => {
   };
 
   const canAddToExpression = (value: string) => {
-    const currentNode = expression[currentMode].substring(
-      expression[currentMode].lastIndexOf(" ") + 1
+    const currentNode = currentExpression.substring(
+      currentExpression.lastIndexOf(" ") + 1
     );
     return !(
       ((standaloneSymbols.includes(value) || // 1
         standaloneOperators.includes(value)) &&
-        !sanitizeExpression(expression[currentMode]).length &&
+        !sanitizeExpression(currentExpression).length &&
         !["-", OPERATORS.NOT].includes(value)) ||
       (currentNode.includes(".") && value === ".") || // 2
       (standaloneOperators.includes(
         // 3
-        sanitizeExpression(expression[currentMode]).slice(-1)
+        sanitizeExpression(currentExpression).slice(-1)
       ) &&
         standaloneOperators.includes(value)) || // 4
       (standaloneSymbols.includes(
-        sanitizeExpression(expression[currentMode]).slice(-1)
+        sanitizeExpression(currentExpression).slice(-1)
       ) &&
         (standaloneSymbols.includes(value) ||
           value.includes("pow") ||
           value.includes("sqrt"))) ||
       value.includes("(") ||
       // 5
-      (sanitizeExpression(expression[currentMode]).slice(-1) ===
-        OPERATORS.NOT &&
+      (sanitizeExpression(currentExpression).slice(-1) === OPERATORS.NOT &&
         standaloneOperators.includes(value)) ||
       (value === OPERATORS.NOT &&
-        hexChars.includes(
-          sanitizeExpression(expression[currentMode]).slice(-1)
+        numbersChars.includes(
+          sanitizeExpression(currentExpression).slice(-1)
         ) &&
-        sanitizeExpression(expression[currentMode]).length) ||
-      (sanitizeExpression(expression[currentMode]).slice(-1) === "(" &&
+        sanitizeExpression(currentExpression).length) ||
+      (sanitizeExpression(currentExpression).slice(-1) === "(" &&
         { numeric: standaloneSymbols, systemic: standaloneOperators }[
           currentMode
         ].includes(value) &&
@@ -73,10 +75,11 @@ export const useResultScreen = () => {
   };
 
   const parenthesizeExpression = () => {
-    const currentExpression = expression[currentMode];
     const right = currentExpression.substring(
       currentExpression.lastIndexOf("(") + 1
     );
+    if (sanitizeExpression(currentExpression).slice(-1) === "(")
+      return setExpression(currentExpression + "( ");
     const isLastCharSymbol = {
       numeric: standaloneSymbols,
       systemic: standaloneOperators,
@@ -103,7 +106,7 @@ export const useResultScreen = () => {
 
   const backspaceExpression = () => {
     let lastAppearanceIndex = -1;
-    const str = expression[currentMode];
+    const str = currentExpression;
 
     for (const symbol of standaloneSymbols) {
       const index = str.lastIndexOf(symbol);
@@ -117,10 +120,37 @@ export const useResultScreen = () => {
     setExpression(result);
   };
 
+  const addConstToExpression = (val: string) => {
+    const leftChar = sanitizeExpression(currentExpression).slice(-1);
+    if (numbersChars.includes(leftChar) && leftChar)
+      return setExpression(currentExpression + " * " + val);
+    return setExpression(currentExpression + " " + val);
+  };
+
+  const addExponent = () => {
+    const leftChar = sanitizeExpression(currentExpression).slice(-1);
+    if (!numbersChars.includes(leftChar) && leftChar !== ")") return;
+    return setExpression(currentExpression + "^( ");
+  };
+
+  const addSquareRootToExpression = () => {
+    const leftChar = sanitizeExpression(currentExpression).slice(-1);
+    if (numbersChars.includes(leftChar) && leftChar)
+      return setExpression(currentExpression + " * " + "sqrt( ");
+    return setExpression(currentExpression + " " + "sqrt( ");
+  };
+
   const addToExpression = (value: string) => {
     if (value === "CLR") return clearExpression();
-    if (value.includes("pow")) return clearExpression();
     if (value === "DEL") return backspaceExpression();
+    if (value.includes("sqrt")) addSquareRootToExpression();
+    if (
+      [PI.symbol, "e"].includes(sanitizeExpression(currentExpression).slice(-1))
+    )
+      return setExpression(`${currentExpression} * ${value}`);
+    if (value === PI.slug) return addConstToExpression(PI.symbol);
+    if (value === "e") return addConstToExpression("e");
+    if (value.includes("pow")) return addExponent();
     if (value === "=") return evaluateExpression();
     if (value === "()") return parenthesizeExpression();
     if (Object.values(SYSTEMS).includes(value as SystemType))
@@ -131,11 +161,15 @@ export const useResultScreen = () => {
 
     setExpression(
       caretPos > 0
-        ? expression[currentMode].slice(0, caretPos) +
-            (hexChars.includes(value) || value === "." ? value : ` ${value} `) +
-            expression[currentMode].slice(caretPos)
-        : expression[currentMode] +
-            (hexChars.includes(value) || value === "." ? value : ` ${value} `)
+        ? currentExpression.slice(0, caretPos) +
+            (numbersChars.includes(value) || value === "."
+              ? value
+              : ` ${value} `) +
+            currentExpression.slice(caretPos)
+        : currentExpression +
+            (numbersChars.includes(value) || value === "."
+              ? value
+              : ` ${value} `)
     );
   };
 

@@ -5,6 +5,11 @@ export const SYSTEMS = {
   HEX: "HEX",
 } as const;
 
+export const PI = {
+  symbol: "π",
+  slug: "PI",
+};
+
 export type SystemType = keyof typeof SYSTEMS;
 
 export const systemValues = {
@@ -32,3 +37,5 @@ export const standaloneOperators = [
   OPERATORS.NOR,
   OPERATORS.XOR,
 ] as const;
+
+export const numbersChars = hexChars + PI.symbol + "e";

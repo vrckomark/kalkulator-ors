@@ -90,7 +90,7 @@ export const numericButtons = [
   {
     style: "const-btn",
     element: <p className=" font-medium text-3xl">π</p>,
-    value: "π",
+    value: "PI",
   },
   {
     style: "val-btn",
