@@ -29,7 +29,7 @@ const ResultScreen = () => {
         {isNaN(parseFloat(evaluatedExpression)) ? "" : evaluatedExpression}
       </p>
       <p className="absolute right-0 bottom-0 text-2xl font-medium p-4 tracking-wider">
-        {mode === "systemic" && `${system} (${systemValues[system]}`}
+        {mode === "systemic" && `${system} (${systemValues[system]})`}
       </p>
     </div>
   );
