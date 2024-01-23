@@ -1,14 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
-import React, { createContext, useEffect, useRef, useState } from "react";
-import {
-  OPERATORS,
-  SYSTEMS,
-  SystemType,
-  hexChars,
-  standaloneOperators,
-  standaloneSymbols,
-} from "../consts/symbols";
-import { sanitizeExpression } from "../utils/sanitizeExpression";
+import React, { createContext, useState } from "react";
+import { SYSTEMS, SystemType } from "../consts/symbols";
 
 export type ModeType = "numeric" | "systemic";
 
