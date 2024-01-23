@@ -221,12 +221,16 @@ export const useResultScreen = () => {
     if (value === "CLR") return clearExpression();
     if (value === "DEL") return backspaceExpression();
     if (value.includes("sqrt")) addSquareRootToExpression();
+    if (value === PI.slug) return addConstToExpression(PI.symbol);
+    if (value === "e") return addConstToExpression("e");
     if (
       [PI.symbol, "e"].includes(sanitizeExpression(currentExpression).slice(-1))
     )
-      return setExpression(`${currentExpression} * ${value}`);
-    if (value === PI.slug) return addConstToExpression(PI.symbol);
-    if (value === "e") return addConstToExpression("e");
+      return setExpression(
+        !numbersChars.includes(value)
+          ? `${currentExpression} ${value}`
+          : `${currentExpression} * ${value}`
+      );
     if (value.includes("pow")) return addExponent();
     if (value === "()") return parenthesizeExpression();
     if (Object.values(SYSTEMS).includes(value as SystemType))
