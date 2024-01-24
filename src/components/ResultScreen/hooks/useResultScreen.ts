@@ -11,13 +11,6 @@ import {
 } from "../../../consts/symbols";
 import { sanitizeExpression } from "../../../utils/sanitizeExpression";
 import {
-  balanceParentheses,
-  bitwiseAnd,
-  bitwiseNand,
-  bitwiseNor,
-  bitwiseNot,
-  bitwiseOr,
-  bitwiseXor,
   evaluateArithmetic,
   evaluateBinaryOperators,
 } from "../utils/operators";
