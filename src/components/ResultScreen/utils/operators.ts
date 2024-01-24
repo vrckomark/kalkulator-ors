@@ -156,83 +156,111 @@ const evaluateLogicalOperators = (expression: string) => {
 };
 
 const evaluateExpression = (expression: string): number => {
-  if (/(\*|\/|\+|-|%)$/.test(expression))
-    return Number(expression.slice(0, -1));
-  const power = (base: number, exponent: number) => {
-    return Math.pow(base, exponent);
+  const precedence = {
+    "+": 1,
+    "-": 1,
+    "*": 2,
+    "/": 2,
+    "%": 2,
+    "^": 3,
+    sqrt: 4,
   };
 
-  const evaluateNestedExpression = (subExpression: string): number => {
-    return evaluateExpression(subExpression);
+  type PrecedenceType = keyof typeof precedence;
+
+  // eslint-disable-next-line no-prototype-builtins
+  const isOperator = (token: string) => precedence.hasOwnProperty(token);
+
+  const shuntingYard = (tokens: string[]): string[] => {
+    const outputQueue: string[] = [];
+    const operatorStack: string[] = [];
+
+    for (const token of tokens) {
+      if (!isNaN(parseFloat(token))) {
+        outputQueue.push(token);
+      } else if (isOperator(token)) {
+        while (
+          operatorStack.length &&
+          precedence[
+            operatorStack[operatorStack.length - 1] as PrecedenceType
+          ] >= precedence[token as PrecedenceType]
+        ) {
+          outputQueue.push(operatorStack.pop()!);
+        }
+        operatorStack.push(token);
+      } else if (token === "(") {
+        operatorStack.push(token);
+      } else if (token === ")") {
+        while (
+          operatorStack.length &&
+          operatorStack[operatorStack.length - 1] !== "("
+        ) {
+          outputQueue.push(operatorStack.pop()!);
+        }
+        operatorStack.pop();
+      }
+    }
+
+    while (operatorStack.length) {
+      outputQueue.push(operatorStack.pop()!);
+    }
+
+    return outputQueue;
   };
 
-  expression = expression.replace(/sqrt\(([^)]+)\)/g, (_, inside) =>
-    Math.sqrt(evaluateNestedExpression(inside)).toString()
-  );
+  const evaluatePostfix = (postfix: string[]): number => {
+    const stack: number[] = [];
 
-  while (expression.includes("^")) {
-    expression = expression.replace(
-      /(\d+(?:\.\d+)?)\s*\^\s*(\d+(?:\.\d+)?)/g,
-      (_, base, exponent) => power(Number(base), Number(exponent)).toString()
-    );
-  }
+    for (const token of postfix) {
+      if (!isNaN(parseFloat(token))) {
+        stack.push(parseFloat(token));
+      } else if (isOperator(token)) {
+        if (token === "sqrt") {
+          const operand = stack.pop()!;
+          stack.push(Math.sqrt(operand));
+        } else {
+          const b = stack.pop()!;
+          const a = stack.pop()!;
+          switch (token) {
+            case "+":
+              stack.push(a + b);
+              break;
+            case "-":
+              stack.push(a - b);
+              break;
+            case "*":
+              stack.push(a * b);
+              break;
+            case "/":
+              stack.push(a / b);
+              break;
+            case "%":
+              stack.push(a % b);
+              break;
+            case "^":
+              stack.push(Math.pow(a, b));
+              break;
+          }
+        }
+      }
+    }
 
-  while (expression.includes("(")) {
-    expression = expression.replace(/\(([^()]+)\)/g, (_, subExpression) =>
-      evaluateExpression(subExpression).toString()
-    );
-  }
+    return stack.pop()!;
+  };
 
-  while (expression.includes("*")) {
-    expression = expression.replace(
-      /(\d+(?:\.\d+)?)\s*\*\s*(\d+(?:\.\d+)?)/g,
-      (_, factor1, factor2) =>
-        (Number(factor1) * Number(evaluateNestedExpression(factor2))).toString()
-    );
-  }
+  const tokens = expression
+    .replace(/(\d+(?:\.\d+)?|\^|\*|\/|%|\+|-|\(|\)|sqrt)/g, " $1 ")
+    .trim()
+    .split(/\s+/);
 
-  while (expression.includes("/")) {
-    expression = expression.replace(
-      /(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)/g,
-      (_, numerator, denominator) =>
-        (
-          Number(numerator) / Number(evaluateNestedExpression(denominator))
-        ).toString()
-    );
-  }
+  const outputQueue = shuntingYard(tokens);
+  const result = evaluatePostfix(outputQueue);
 
-  while (expression.includes("+")) {
-    expression = expression.replace(
-      /(\d+(?:\.\d+)?)\s*\+\s*(\d+(?:\.\d+)?)/g,
-      (_, addend1, addend2) =>
-        (Number(addend1) + Number(evaluateNestedExpression(addend2))).toString()
-    );
-  }
-
-  while (expression.includes("-")) {
-    expression = expression.replace(
-      /(\d+(?:\.\d+)?)\s*-\s*(\d+(?:\.\d+)?)/g,
-      (_, minuend, subtrahend) =>
-        (
-          Number(minuend) - Number(evaluateNestedExpression(subtrahend))
-        ).toString()
-    );
-  }
-
-  while (expression.includes("%")) {
-    expression = expression.replace(
-      /(\d+(?:\.\d+)?)\s*%\s*(\d+(?:\.\d+)?)/g,
-      (_, dividend, divisor) =>
-        (
-          Number(dividend) % Number(evaluateNestedExpression(divisor))
-        ).toString()
-    );
-  }
-
-  return Number(expression);
+  return result;
 };
 
 export const evaluateArithmetic = (expression: string) => {
+  if (!expression) return expression;
   const balancedExpression = sanitizeExpression(balanceParentheses(expression))
     .replaceAll(PI.symbol, Math.PI.toString())
     .replaceAll("e", Math.E.toString());
