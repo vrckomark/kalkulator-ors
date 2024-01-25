@@ -10,6 +10,15 @@ import {
   STANDARD_OPERATORS_VALUES,
 } from "../../../consts/symbols";
 
+const substringToFirstEqualSign = (str: string) => {
+  const indexOfEqualSign = str.indexOf("=");
+  if (indexOfEqualSign !== -1) {
+    return str.substring(0, indexOfEqualSign);
+  } else {
+    return str;
+  }
+};
+
 export const useFileUpload = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [fileResults, setFileResults] = useState("");
@@ -26,7 +35,7 @@ export const useFileUpload = () => {
     reader.onload = (event) => {
       const fileContent = event?.target?.result as string;
       if (!fileContent) return;
-      const expressions = fileContent
+      const expressions = substringToFirstEqualSign(fileContent)
         .replaceAll("=", "")
         .replaceAll("\r", "")
         .split("\n");
