@@ -3,7 +3,6 @@ import { FaHistory } from "react-icons/fa";
 import { useHistory } from "./hooks/useHistory";
 import { RxCross2 } from "react-icons/rx";
 import { historyContext } from "../../../contexts/HistoryContext";
-import { FaTrashAlt } from "react-icons/fa";
 
 export type ExpressionType = {
   expression: string;

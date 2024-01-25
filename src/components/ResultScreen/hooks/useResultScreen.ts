@@ -223,9 +223,6 @@ export const useResultScreen = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentExpression]);
 
-  console.log(evaluateBinaryOperators("1111 & 0011 & !(1100 | 0010)", true));
-  console.log(evaluateBinaryOperators("1111 ∧ 0011 ∧ ¬(1100 ∨ 0010)"));
-
   return {
     addToExpression,
     onKeyboardInput,

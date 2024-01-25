@@ -39,8 +39,6 @@ export const useFileUpload = () => {
         ? OPERATORS
         : null;
 
-      console.log(operators);
-
       const results = expressions.map((expression) => {
         try {
           return `${expression} = ${
