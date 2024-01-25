@@ -1,4 +1,4 @@
-import { useContext, useMemo, useRef } from "react";
+import { useContext, useMemo } from "react";
 import { modeContext } from "../../../contexts/ModeContext";
 import {
   OPERATORS,
@@ -14,6 +14,12 @@ import {
   evaluateArithmetic,
   evaluateBinaryOperators,
 } from "../utils/operators";
+import { historyContext } from "../../../contexts/HistoryContext";
+
+export type HistoryType = {
+  expression: string;
+  result: string;
+};
 
 export const useResultScreen = () => {
   const {
@@ -23,7 +29,8 @@ export const useResultScreen = () => {
     setCurrentSystem,
     setCurrentExpression: setExpression,
   } = useContext(modeContext);
-  const inputRef = useRef<HTMLInputElement>(null);
+
+  const { addToHistory } = useContext(historyContext);
 
   const currentExpression = expression[currentMode];
 
@@ -140,17 +147,20 @@ export const useResultScreen = () => {
     return setExpression(currentExpression + " " + "sqrt( ");
   };
 
+  const evaluate = () => {
+    const result = {
+      numeric: evaluateArithmetic(currentExpression),
+      systemic:
+        system === SYSTEMS.BIN
+          ? evaluateBinaryOperators(currentExpression)
+          : "",
+    }[currentMode];
+    setExpression(result);
+    addToHistory(currentExpression, result);
+  };
+
   const addToExpression = (value: string) => {
-    if (value === "=")
-      return setExpression(
-        {
-          numeric: evaluateArithmetic(currentExpression),
-          systemic:
-            system === SYSTEMS.BIN
-              ? evaluateBinaryOperators(currentExpression)
-              : "",
-        }[currentMode]
-      );
+    if (value === "=") return evaluate();
     if (value === "CLR") return clearExpression();
     if (value === "DEL") return backspaceExpression();
     if (value.includes("sqrt")) return addSquareRootToExpression();
@@ -170,19 +180,9 @@ export const useResultScreen = () => {
       return setCurrentSystem(value as SystemType);
     if (!canAddToExpression(value)) return;
 
-    const caretPos = inputRef.current?.selectionEnd || 0;
-
     setExpression(
-      caretPos > 0
-        ? currentExpression.slice(0, caretPos) +
-            (numbersChars.includes(value) || value === "."
-              ? value
-              : ` ${value} `) +
-            currentExpression.slice(caretPos)
-        : currentExpression +
-            (numbersChars.includes(value) || value === "."
-              ? value
-              : ` ${value} `)
+      currentExpression +
+        (numbersChars.includes(value) || value === "." ? value : ` ${value} `)
     );
   };
 
@@ -201,7 +201,6 @@ export const useResultScreen = () => {
   }, [currentExpression]);
 
   return {
-    inputRef,
     addToExpression,
     onKeyboardInput,
     evaluatedExpression,
