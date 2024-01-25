@@ -11,28 +11,30 @@ const ResultScreen = () => {
 
   return (
     <div className="w-full relative flex justify-center  items-end flex-col h-full pr-4">
-      <div className="absolute left-[20%] flex gap-6 jusitfy-between">
-        <div className="flex flex-col">
-          <p className="text-2xl">BIN</p>
-          <p className="text-2xl">OCT</p>
-          <p className="text-2xl">DEC</p>
-          <p className="text-2xl">HEX</p>
+      {mode === "systemic" && (
+        <div className="absolute left-[20%] flex gap-6 jusitfy-between">
+          <div className="flex flex-col">
+            <p className="text-2xl">BIN</p>
+            <p className="text-2xl">OCT</p>
+            <p className="text-2xl">DEC</p>
+            <p className="text-2xl">HEX</p>
+          </div>
+          <div className="flex flex-end flex-col text-left">
+            <p className="text-2xl">
+              {convert(expression[mode], system, SYSTEMS.BIN) || 0}
+            </p>
+            <p className="text-2xl">
+              {convert(expression[mode], system, SYSTEMS.OCT) || 0}
+            </p>
+            <p className="text-2xl">
+              {convert(expression[mode], system, SYSTEMS.DEC) || 0}
+            </p>
+            <p className="text-2xl">
+              {convert(expression[mode], system, SYSTEMS.HEX) || 0}
+            </p>
+          </div>
         </div>
-        <div className="flex flex-end flex-col text-left">
-          <p className="text-2xl">
-            {convert(expression[mode], system, SYSTEMS.BIN) || 0}
-          </p>
-          <p className="text-2xl">
-            {convert(expression[mode], system, SYSTEMS.OCT) || 0}
-          </p>
-          <p className="text-2xl">
-            {convert(expression[mode], system, SYSTEMS.DEC) || 0}
-          </p>
-          <p className="text-2xl">
-            {convert(expression[mode], system, SYSTEMS.HEX) || 0}
-          </p>
-        </div>
-      </div>
+      )}
       <p
         autoFocus
         className="text-[44px] font-medium bg-transparent text-right outline-none w-full"

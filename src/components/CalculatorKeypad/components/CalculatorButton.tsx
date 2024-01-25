@@ -17,7 +17,7 @@ const CalculatorButton: React.FC<CalculatorButtonProps> = ({
     <button
       disabled={disabled}
       onClick={() => onClick(value)}
-      className={`${style} transition-all+ ${
+      className={`${style} transition-all ${
         disabled ? "opacity-15 cursor-default hover:bg-opacity-20" : ""
       }`}
     >

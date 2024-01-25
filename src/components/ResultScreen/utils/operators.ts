@@ -287,7 +287,7 @@ export const convert = (
   if (
     Object.values(OPERATORS).some((operator) => expression.includes(operator))
   )
-    return expression;
+    return "";
   const balancedExpression = sanitizeExpression(expression).toUpperCase();
 
   const decValue = balancedExpression.split("").reduce((acc, char) => {

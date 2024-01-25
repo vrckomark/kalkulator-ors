@@ -18,9 +18,12 @@ const CalculatorKeypad = () => {
         {buttons.map((button, index) => (
           <CalculatorButton
             disabled={
-              button.style === "val-btn" &&
-              !scientificButtons[system].includes(button.value) &&
-              mode === "systemic"
+              (button.style === "val-btn" &&
+                !scientificButtons[system].includes(button.value) &&
+                mode === "systemic") ||
+              (mode === "systemic" &&
+                system !== "BIN" &&
+                button.style === "op-btn")
             }
             key={index}
             {...button}
