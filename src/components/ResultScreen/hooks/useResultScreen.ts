@@ -1,4 +1,4 @@
-import { useContext, useMemo, useRef } from "react";
+import { useContext, useMemo } from "react";
 import { modeContext } from "../../../contexts/ModeContext";
 import {
   OPERATORS,
@@ -10,16 +10,27 @@ import {
   standaloneSymbols,
 } from "../../../consts/symbols";
 import { sanitizeExpression } from "../../../utils/sanitizeExpression";
+import {
+  evaluateArithmetic,
+  evaluateBinaryOperators,
+} from "../utils/operators";
+import { historyContext } from "../../../contexts/HistoryContext";
+
+export type HistoryType = {
+  expression: string;
+  result: string;
+};
 
 export const useResultScreen = () => {
   const {
     expression,
     mode: currentMode,
-    // selectedSystem: system,
+    selectedSystem: system,
     setCurrentSystem,
     setCurrentExpression: setExpression,
   } = useContext(modeContext);
-  const inputRef = useRef<HTMLInputElement>(null);
+
+  const { addToHistory } = useContext(historyContext);
 
   const currentExpression = expression[currentMode];
 
@@ -136,92 +147,16 @@ export const useResultScreen = () => {
     return setExpression(currentExpression + " " + "sqrt( ");
   };
 
-  const evaluateExpression = (expression: string): number => {
-    const power = (base: number, exponent: number) => {
-      return Math.pow(base, exponent);
-    };
-
-    const evaluateNestedExpression = (subExpression: string): number => {
-      return evaluateExpression(subExpression);
-    };
-
-    expression = expression.replace(/sqrt\(([^)]+)\)/g, (_, inside) =>
-      Math.sqrt(evaluateNestedExpression(inside)).toString()
-    );
-    expression = expression.replace(
-      /(\d+(?:\.\d+)?)\s*\^\s*\(([^)]+)\)/g,
-      (_, base, exponent) => power(Number(base), Number(exponent)).toString()
-    );
-    expression = expression.replace(
-      /(\d+(?:\.\d+)?)\s*\^\s*(\d+(?:\.\d+)?)/g,
-      (_, base, exponent) => power(Number(base), Number(exponent)).toString()
-    );
-
-    while (expression.includes("(")) {
-      expression = expression.replace(/\(([^()]+)\)/g, (_, subExpression) =>
-        evaluateExpression(subExpression).toString()
-      );
-    }
-
-    expression = expression.replace(
-      /(\d+(?:\.\d+)?)\s*\*\s*(\d+(?:\.\d+)?)/g,
-      (_, factor1, factor2) =>
-        (Number(factor1) * Number(evaluateNestedExpression(factor2))).toString()
-    );
-    expression = expression.replace(
-      /(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)/g,
-      (_, numerator, denominator) =>
-        (
-          Number(numerator) / Number(evaluateNestedExpression(denominator))
-        ).toString()
-    );
-
-    expression = expression.replace(
-      /(\d+(?:\.\d+)?)\s*\+\s*(\d+(?:\.\d+)?)/g,
-      (_, addend1, addend2) =>
-        (Number(addend1) + Number(evaluateNestedExpression(addend2))).toString()
-    );
-    expression = expression.replace(
-      /(\d+(?:\.\d+)?)\s*-\s*(\d+(?:\.\d+)?)/g,
-      (_, minuend, subtrahend) =>
-        (
-          Number(minuend) - Number(evaluateNestedExpression(subtrahend))
-        ).toString()
-    );
-
-    expression = expression.replace(
-      /(\d+(?:\.\d+)?)\s*%\s*(\d+(?:\.\d+)?)/g,
-      (_, dividend, divisor) =>
-        (
-          Number(dividend) % Number(evaluateNestedExpression(divisor))
-        ).toString()
-    );
-
-    return Number(expression);
-  };
-
-  const balanceParentheses = (expression: string) => {
-    const openCount = (expression.match(/\(/g) || []).length;
-    const closeCount = (expression.match(/\)/g) || []).length;
-
-    const missingClosingParentheses = Math.max(0, openCount - closeCount);
-
-    const closingParentheses = ")".repeat(missingClosingParentheses);
-
-    return expression + closingParentheses;
-  };
-
   const evaluate = () => {
-    const balancedExpression = sanitizeExpression(
-      balanceParentheses(currentExpression)
-    )
-      .replaceAll(PI.symbol, Math.PI.toString())
-      .replaceAll("e", Math.E.toString());
-    return setExpression(
-      evaluateExpression(balancedExpression).toLocaleString("default", {
-        maximumFractionDigits: 3,
-      })
-    );
+    const result = {
+      numeric: evaluateArithmetic(currentExpression),
+      systemic:
+        system === SYSTEMS.BIN
+          ? evaluateBinaryOperators(currentExpression)
+          : "",
+    }[currentMode];
+    setExpression(result);
+    addToHistory(currentExpression, result);
   };
 
   const addToExpression = (value: string) => {
@@ -245,19 +180,9 @@ export const useResultScreen = () => {
       return setCurrentSystem(value as SystemType);
     if (!canAddToExpression(value)) return;
 
-    const caretPos = inputRef.current?.selectionEnd || 0;
-
     setExpression(
-      caretPos > 0
-        ? currentExpression.slice(0, caretPos) +
-            (numbersChars.includes(value) || value === "."
-              ? value
-              : ` ${value} `) +
-            currentExpression.slice(caretPos)
-        : currentExpression +
-            (numbersChars.includes(value) || value === "."
-              ? value
-              : ` ${value} `)
+      currentExpression +
+        (numbersChars.includes(value) || value === "." ? value : ` ${value} `)
     );
   };
 
@@ -265,16 +190,17 @@ export const useResultScreen = () => {
     const openCount = (currentExpression.match(/\(/g) || []).length;
     const closeCount = (currentExpression.match(/\)/g) || []).length;
     if (openCount > closeCount) return "";
-    return evaluateExpression(
-      sanitizeExpression(balanceParentheses(currentExpression))
-        .replaceAll(PI.symbol, Math.PI.toString())
-        .replaceAll("e", Math.E.toString())
-    ).toLocaleString("default", { maximumFractionDigits: 3 });
+    return {
+      numeric: evaluateArithmetic(currentExpression),
+      systemic:
+        system === SYSTEMS.BIN
+          ? evaluateBinaryOperators(currentExpression)
+          : null,
+    }[currentMode];
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentExpression]);
 
   return {
-    inputRef,
     addToExpression,
     onKeyboardInput,
     evaluatedExpression,

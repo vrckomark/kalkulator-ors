@@ -286,3 +286,10 @@ export const systemicButtons = [
     value: "=",
   },
 ] as CalculatorButtonType[];
+
+export const scientificButtons = {
+  BIN: "01",
+  OCT: "01234567",
+  DEC: "0123456789",
+  HEX: "0123456789ABCDEF",
+};
