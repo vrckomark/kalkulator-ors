@@ -19,11 +19,10 @@ export const balanceParentheses = (expression: string) => {
 };
 
 const padZeros = (operands: [string, string]) => {
-  if (operands[0].length > operands[1].length)
-    operands[1].padStart(operands[0].length, "0");
-  if (operands[0].length < operands[1].length)
-    operands[0].padStart(operands[1].length, "0");
-  return operands;
+  return [
+    operands[0].padStart(operands[1].length, "0"),
+    operands[1].padStart(operands[0].length, "0"),
+  ];
 };
 
 const and = (a: string | number, b: string | number) => {
@@ -79,20 +78,30 @@ export const bitwiseNor = (a: string, b: string) => {
   return bitwiseNot(bitwiseOr(a, b));
 };
 
-export const evaluateBinaryOperators = (expression: string) => {
-  if (
-    Object.values(OPERATORS).includes(sanitizeExpression(expression).slice(-1))
-  ) {
+export const includesOperator = (expression: string) => {
+  return Object.values(OPERATORS).some((operator) =>
+    expression.includes(operator)
+  );
+};
+
+export const evaluateBinaryOperators = (
+  expression: string,
+  standardSymbols: boolean = false
+) => {
+  if (includesOperator(sanitizeExpression(expression).slice(-1))) {
     return expression;
   }
 
   const sanitizedExpression = balanceParentheses(
     sanitizeExpression(expression)
-  );
-  return evaluateLogicalOperators(sanitizedExpression);
+  ).toUpperCase();
+  return evaluateLogicalOperators(sanitizedExpression, standardSymbols);
 };
 
-const evaluateLogicalOperators = (expression: string) => {
+const evaluateLogicalOperators = (
+  expression: string,
+  standardSymbols: boolean = false
+) => {
   const stack: number[] = [];
 
   for (let i = 0; i < expression.length; i++) {
@@ -110,10 +119,11 @@ const evaluateLogicalOperators = (expression: string) => {
       const subExpression = expression.slice(startIndex + 1, i);
       let result = evaluateLogicalOperators(subExpression);
 
-      // Check if the character before the "(" is a NOT operator
-      if (startIndex > 0 && expression[startIndex - 1] === "¬") {
+      if (
+        startIndex > 0 &&
+        expression[startIndex - 1] === (standardSymbols ? "!" : "¬")
+      ) {
         result = bitwiseNot(result);
-        // Adjust the start index to include the NOT operator in the replacement
         startIndex--;
       }
 
@@ -124,37 +134,45 @@ const evaluateLogicalOperators = (expression: string) => {
     }
   }
 
-  while (expression.includes("¬")) {
-    expression = expression.replace(/¬(\d+)/g, (_, a) => bitwiseNot(a));
-  }
-
-  while (expression.includes("∧")) {
-    expression = expression.replace(/(\d+)\s*∧\s*(\d+)/g, (_, a, b) =>
-      bitwiseAnd(a, b)
+  while (expression.includes(standardSymbols ? "!" : "¬")) {
+    expression = expression.replace(
+      standardSymbols ? /!(\d+)/g : /¬(\d+)/g,
+      (_, a) => bitwiseNot(a)
     );
   }
 
-  while (expression.includes("∨")) {
-    expression = expression.replace(/(\d+)\s*∨\s*(\d+)/g, (_, a, b) =>
-      bitwiseOr(a, b)
+  while (expression.includes(standardSymbols ? "&" : "∧")) {
+    expression = expression.replace(
+      standardSymbols ? /(\d+)\s*&\s*(\d+)/g : /(\d+)\s*∧\s*(\d+)/g,
+      (_, a, b) => bitwiseAnd(a, b)
     );
   }
 
-  while (expression.includes("⊻")) {
-    expression = expression.replace(/(\d+)\s*⊻\s*(\d+)/g, (_, a, b) =>
-      bitwiseXor(a, b)
+  while (expression.includes(standardSymbols ? "|" : "∨")) {
+    expression = expression.replace(
+      standardSymbols ? /(\d+)\s*\|\s*(\d+)/g : /(\d+)\s*∨\s*(\d+)/g,
+      (_, a, b) => bitwiseOr(a, b)
     );
   }
 
-  while (expression.includes("↑")) {
-    expression = expression.replace(/(\d+)\s*↑\s*(\d+)/g, (_, a, b) =>
-      bitwiseNand(a, b)
+  while (expression.includes(standardSymbols ? "XOR" : "⊻")) {
+    expression = expression.replace(
+      standardSymbols ? /(\d+)\s*XOR\s*(\d+)/g : /(\d+)\s*⊻\s*(\d+)/g,
+      (_, a, b) => bitwiseXor(a, b)
     );
   }
 
-  while (expression.includes("↓")) {
-    expression = expression.replace(/(\d+)\s*↓\s*(\d+)/g, (_, a, b) =>
-      bitwiseNor(a, b)
+  while (expression.includes(standardSymbols ? "NAND" : "↑")) {
+    expression = expression.replace(
+      standardSymbols ? /(\d+)\s*NAND\s*(\d+)/g : /(\d+)\s*↑\s*(\d+)/g,
+      (_, a, b) => bitwiseNand(a, b)
+    );
+  }
+
+  while (expression.includes(standardSymbols ? "NOR" : "↓")) {
+    expression = expression.replace(
+      standardSymbols ? /(\d+)\s*NOR\s*(\d+)/g : /(\d+)\s*↓\s*(\d+)/g,
+      (_, a, b) => bitwiseNor(a, b)
     );
   }
 
@@ -265,18 +283,31 @@ const evaluateExpression = (expression: string): number => {
   return result;
 };
 
-export const evaluateArithmetic = (expression: string) => {
+export const evaluateArithmetic = (
+  expression: string,
+  format: boolean = true
+) => {
   if (
     !expression ||
     expression.split("").some((char) => "ABCDEF".includes(char))
   )
     return expression;
-  const balancedExpression = sanitizeExpression(balanceParentheses(expression))
-    .replaceAll(PI.symbol, Math.PI.toString())
-    .replaceAll("e", Math.E.toString());
-  return evaluateExpression(balancedExpression).toLocaleString("default", {
-    maximumFractionDigits: 3,
-  });
+  try {
+    const balancedExpression = sanitizeExpression(
+      balanceParentheses(expression)
+    )
+      .replaceAll(PI.symbol, Math.PI.toString())
+      .replaceAll("e", Math.E.toString())
+      .replaceAll(",", "");
+    return format
+      ? evaluateExpression(balancedExpression).toLocaleString("default", {
+          maximumFractionDigits: 3,
+        })
+      : evaluateExpression(balancedExpression).toString();
+  } catch (e) {
+    console.error(e);
+    return "0";
+  }
 };
 
 export const convert = (
@@ -284,10 +315,7 @@ export const convert = (
   fromSystem: SystemType,
   toSystem: SystemType
 ) => {
-  if (
-    Object.values(OPERATORS).some((operator) => expression.includes(operator))
-  )
-    return "";
+  if (includesOperator(expression)) return "";
   const balancedExpression = sanitizeExpression(expression).toUpperCase();
 
   const decValue = balancedExpression.split("").reduce((acc, char) => {

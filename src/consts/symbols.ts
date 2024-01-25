@@ -29,6 +29,18 @@ export const OPERATORS = {
   XOR: "⊻",
 };
 
+export const STANDARD_OPERATORS = {
+  AND: "&",
+  OR: "|",
+  NOT: "!",
+  NAND: "NAND",
+  NOR: "NOR",
+  XOR: "XOR",
+};
+
+export const STANDARD_OPERATORS_VALUES = Object.values(STANDARD_OPERATORS);
+export const OPERATORS_VALUES = Object.values(OPERATORS);
+
 export const standaloneSymbols = ["%", "π", "e", "/", "*", "-", "+", "="];
 export const standaloneOperators = [
   OPERATORS.AND,

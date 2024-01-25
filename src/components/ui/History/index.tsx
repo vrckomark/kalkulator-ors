@@ -3,6 +3,7 @@ import { FaHistory } from "react-icons/fa";
 import { useHistory } from "./hooks/useHistory";
 import { RxCross2 } from "react-icons/rx";
 import { historyContext } from "../../../contexts/HistoryContext";
+import { FaTrashAlt } from "react-icons/fa";
 
 export type ExpressionType = {
   expression: string;
@@ -11,7 +12,7 @@ export type ExpressionType = {
 
 const History = () => {
   const { showOverlay, toggleOverlay } = useHistory();
-  const { history } = useContext(historyContext);
+  const { history, clearHistory } = useContext(historyContext);
 
   return (
     <>
@@ -22,7 +23,13 @@ const History = () => {
         <FaHistory className="text-2xl" />
       </button>
       <HistoryOverlay show={showOverlay} toggle={toggleOverlay} />
-      <div className="h-full hidden lg:flex items-center px-8 py-6 bg-white bg-opacity-15 rounded-2xl w-1/3 flex-col overflow-hidden">
+      <div className="h-full hidden lg:flex items-center relative px-8 py-6 bg-white bg-opacity-15 rounded-2xl w-1/3 flex-col overflow-hidden">
+        <button
+          onClick={() => clearHistory()}
+          className="absolute right-4 top-4 text-xs hover:bg-red-500 bg-opacity-50 p-2 rounded-xl transition-colors"
+        >
+          Clear history
+        </button>
         <h2 className="mb-4">History</h2>
         <div className="flex flex-col w-full overflow-auto gap-2">
           {history.map((item, index) => (

@@ -3,6 +3,7 @@ import { modeContext } from "../../../contexts/ModeContext";
 import {
   OPERATORS,
   PI,
+  STANDARD_OPERATORS,
   SYSTEMS,
   SystemType,
   numbersChars,
@@ -11,8 +12,10 @@ import {
 } from "../../../consts/symbols";
 import { sanitizeExpression } from "../../../utils/sanitizeExpression";
 import {
+  convert,
   evaluateArithmetic,
   evaluateBinaryOperators,
+  includesOperator,
 } from "../utils/operators";
 import { historyContext } from "../../../contexts/HistoryContext";
 
@@ -88,10 +91,17 @@ export const useResultScreen = () => {
       return setExpression(currentExpression + "( ");
     const isLastCharSymbol = {
       numeric: standaloneSymbols,
-      systemic: standaloneOperators,
+      systemic: Object.values(
+        Object.values(STANDARD_OPERATORS).some((operator) =>
+          currentExpression.includes(operator)
+        )
+          ? STANDARD_OPERATORS
+          : OPERATORS
+      ),
     }[currentMode].some(
       (symbol) => sanitizeExpression(right).slice(-1) === symbol
     );
+
     if (
       currentExpression.split("(").length - 1 ===
         currentExpression.split(")").length - 1 &&
@@ -159,6 +169,15 @@ export const useResultScreen = () => {
     addToHistory(currentExpression, result);
   };
 
+  const changeSystem = (newSystem: SystemType) => {
+    const oldSystem = system;
+    setCurrentSystem(newSystem as SystemType);
+    if (!includesOperator(currentExpression)) {
+      return setExpression(convert(currentExpression, oldSystem, newSystem));
+    }
+    return setExpression("");
+  };
+
   const addToExpression = (value: string) => {
     if (value === "=") return evaluate();
     if (value === "CLR") return clearExpression();
@@ -177,12 +196,16 @@ export const useResultScreen = () => {
     if (value.includes("pow")) return addExponent();
     if (value === "()") return parenthesizeExpression();
     if (Object.values(SYSTEMS).includes(value as SystemType))
-      return setCurrentSystem(value as SystemType);
+      return changeSystem(value as SystemType);
     if (!canAddToExpression(value)) return;
 
     setExpression(
-      currentExpression +
-        (numbersChars.includes(value) || value === "." ? value : ` ${value} `)
+      value === "." && !currentExpression.length
+        ? "0."
+        : currentExpression +
+            (numbersChars.includes(value) || value === "."
+              ? value
+              : ` ${value} `)
     );
   };
 
@@ -199,6 +222,9 @@ export const useResultScreen = () => {
     }[currentMode];
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentExpression]);
+
+  console.log(evaluateBinaryOperators("1111 & 0011 & !(1100 | 0010)", true));
+  console.log(evaluateBinaryOperators("1111 ∧ 0011 ∧ ¬(1100 ∨ 0010)"));
 
   return {
     addToExpression,
