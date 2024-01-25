@@ -19,7 +19,7 @@ export const useResultScreen = () => {
   const {
     expression,
     mode: currentMode,
-    // selectedSystem: system,
+    selectedSystem: system,
     setCurrentSystem,
     setCurrentExpression: setExpression,
   } = useContext(modeContext);
@@ -145,7 +145,10 @@ export const useResultScreen = () => {
       return setExpression(
         {
           numeric: evaluateArithmetic(currentExpression),
-          systemic: evaluateBinaryOperators(currentExpression),
+          systemic:
+            system === SYSTEMS.BIN
+              ? evaluateBinaryOperators(currentExpression)
+              : "",
         }[currentMode]
       );
     if (value === "CLR") return clearExpression();
@@ -189,7 +192,10 @@ export const useResultScreen = () => {
     if (openCount > closeCount) return "";
     return {
       numeric: evaluateArithmetic(currentExpression),
-      systemic: evaluateBinaryOperators(currentExpression),
+      systemic:
+        system === SYSTEMS.BIN
+          ? evaluateBinaryOperators(currentExpression)
+          : null,
     }[currentMode];
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentExpression]);

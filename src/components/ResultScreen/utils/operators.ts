@@ -1,4 +1,10 @@
-import { OPERATORS, PI } from "../../../consts/symbols";
+import {
+  OPERATORS,
+  PI,
+  SystemType,
+  hexChars,
+  systemValues,
+} from "../../../consts/symbols";
 import { sanitizeExpression } from "../../../utils/sanitizeExpression";
 
 export const balanceParentheses = (expression: string) => {
@@ -260,11 +266,41 @@ const evaluateExpression = (expression: string): number => {
 };
 
 export const evaluateArithmetic = (expression: string) => {
-  if (!expression) return expression;
+  if (
+    !expression ||
+    expression.split("").some((char) => "ABCDEF".includes(char))
+  )
+    return expression;
   const balancedExpression = sanitizeExpression(balanceParentheses(expression))
     .replaceAll(PI.symbol, Math.PI.toString())
     .replaceAll("e", Math.E.toString());
   return evaluateExpression(balancedExpression).toLocaleString("default", {
     maximumFractionDigits: 3,
   });
+};
+
+export const convert = (
+  expression: string,
+  fromSystem: SystemType,
+  toSystem: SystemType
+) => {
+  if (
+    Object.values(OPERATORS).some((operator) => expression.includes(operator))
+  )
+    return expression;
+  const balancedExpression = sanitizeExpression(expression).toUpperCase();
+
+  const decValue = balancedExpression.split("").reduce((acc, char) => {
+    return acc * systemValues[fromSystem] + hexChars.indexOf(char);
+  }, 0);
+
+  let newVal = decValue;
+  let result = "";
+  while (newVal > 0) {
+    const char = hexChars[newVal % systemValues[toSystem]];
+    newVal = Math.floor(newVal / systemValues[toSystem]);
+    result += char;
+  }
+
+  return result.split("").reverse().join("");
 };
